@@ -1,35 +1,31 @@
 from aocd import data
+from itertools import product
 import copy
 
-dn = [int(d) for d in data.split(',')]
-dn[1] = 12
-dn[2] = 2
+def get_output(noun, verb, dn):
+    dn[1] = noun
+    dn[2] = verb
+    iterange = iter(range(len(dn)))
 
-dn_f = copy.copy(dn)
+    for i in iterange:
+        if dn[i] == 99:
+            return dn[0]
+        
+        if dn[i] == 1:
+            dn[dn[i+3]] = dn[dn[i+1]] + dn[dn[i+2]]
+        elif dn[i] == 2:
+            dn[dn[i+3]] = dn[dn[i+1]] * dn[dn[i+2]]
 
-dn_rows = []
+        [next(iterange) for i in range(3)]
 
-while dn:
-    if dn[0] == 99:
-        dn_rows.append([dn[0]])
-        del dn[0]
-    else:
-        dn_rows.append(dn[0:4])
-        del dn[0:4]
+datan = [int(d) for d in data.split(',')]
+dn = copy.copy(datan)
+p1 = get_output(12, 2, dn)
+print(f"Part 1: {p1}")
 
-for o in dn_rows:
-    if o[0] == 99:
-        print("Part 1: {}".format(dn_rows[0][0]))
-        break
-
-    col = o[3] // 4
-    row = o[3] % 4
-    
-    if o[0] == 1:
-        r = dn_f[o[1]] + dn_f[o[2]]
-        dn_rows[col][row] += r
-    elif o[0] == 2:
-        r = dn_f[o[1]] * dn_f[o[2]]
-        dn_rows[col][row] *= r
-
-    
+for noun, verb in product(range(100), repeat=2):
+    dn = copy.copy(datan)
+    p2_candidate = get_output(noun, verb, dn)
+    if p2_candidate == 19690720:
+        p2hash = 100 * noun + verb
+        print(f"Part 2: {p2hash}")
