@@ -27,15 +27,9 @@ def get_output(inp, dn):
             ret_code = o1()
             i += 2
         elif inst == '05':  # jump-if-true
-            if o1():
-                i = o2()
-            else:
-                i += 3
+            i = o2() if o1() else i + 3
         elif inst == '06':  # jump-if-false
-            if not o1():
-                i = o2()
-            else:
-                i += 3
+            i = o2() if not o1() else i + 3
         elif inst == '07':  # less than
             dn[dn[i+3]] = 1 if o1() < o2() else 0
             i += 4
@@ -43,7 +37,6 @@ def get_output(inp, dn):
             dn[dn[i+3]] = 1 if o1() == o2() else 0
             i += 4
         
-
 datan = [int(d) for d in data.split(',')]
 dn = copy.copy(datan)
 p1 = get_output(1, dn)
