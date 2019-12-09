@@ -18,7 +18,7 @@ def get_thruster_out(dn, seq, inp=0):
 
 class Amp(object):
     def __init__(self, dn, phase):
-        self.dn = dn  # memory
+        self.dn = copy.copy(dn)  # memory
         self.i = 0  # Position in memory
         self.return_code = None # returned code  
         self.phase_input = [phase]  # holds input values
@@ -65,17 +65,20 @@ class Amp(object):
                 raise Exception("Got invalid instruction")
     
 
-dn = [3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5] # 139629729
-a, b, c, d, e = [Amp(dn, i) for i in [9,8,7,6,5]] # make amplifiers
+def p2(dn, perm):
+    a, b, c, d, e = [Amp(dn, i) for i in perm] # make amplifiers
 
+    while e.state != 'off':
+        a.run_machine(e.return_code or 0)
+        b.run_machine(a.return_code)
+        c.run_machine(b.return_code)
+        d.run_machine(c.return_code)
+        e.run_machine(d.return_code)
 
-while e.state != 'off':
-    a.run_machine(e.return_code or 0)
-    b.run_machine(a.return_code)
-    c.run_machine(b.return_code)
-    d.run_machine(c.return_code)
-    e.run_machine(d.return_code)
+    return e.return_code
 
+#dn = [3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5] # 139629729
+dn = [int(d) for d in data.split(',')]
 
-print(e.return_code)
-
+p2 = max([p2(dn, list(prm)) for prm in permutations(range(5,10))])
+print(p2)
