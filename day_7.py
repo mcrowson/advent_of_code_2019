@@ -3,7 +3,7 @@ from itertools import permutations, cycle, chain
 import copy
 data = get_data(day=7)
 
-'''
+'''  IGNORE THIS, old Part 1 stuff
 def get_thruster_out(dn, seq, inp=0):
     s = seq.pop(0)
     o = get_output([s, inp], dn)
