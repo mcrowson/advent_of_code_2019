@@ -21,13 +21,22 @@ class Boost(object):
         self._expand(pos)
         self.dn[pos] = val
 
-    def _o(self, off, p):
+    def _get_pos(self, off, p):
         if p == '0':  # Positional
             pos = self._get(self.i+off)
         elif p == '1':  # Imediate
             pos = self.i+off
         else: # p==2 Relative
-            pos = self.rel_base+off
+            pos = self.rel_base+ self._get(self.i + off)
+        return pos
+
+    def _get_val(self, off, p):
+        if p == '0':  # Positional
+            pos = self._get(self.i+off)
+        elif p == '1':  # Imediate
+            pos = self.i+off
+        else: # p==2 Relative
+            pos = self.rel_base+ self._get(self.i + off)
         
         return self._get(pos) 
         
@@ -38,43 +47,46 @@ class Boost(object):
         while True:
             p = str(self._get(self.i)).zfill(5)  # 1 -> 00001
             inst = p[3:]  # Instruction
-            p2, p1 = p[1] , p[2]  # positinoal/immediate for args 1 / 2 
+            p3, p2, p1 = p[0], p[1], p[2]  # positinoal/immediate for args 1 / 2 
             if inst == '99':  # end
                 return self.return_codes[-1]
             elif inst == '01':  # add
-                self._save(self._get(self.i+3), self._o(1, p1) + self._o(2, p2))
+                self._save(self._get_pos(3, p3), self._get_val(1, p1) + self._get_val(2, p2))
                 self.i += 4
             elif inst == '02':  # multiply
-                self._save(self._get(self.i+3), self._o(1, p1) * self._o(2, p2))
+                self._save(self._get_pos(3, p3), self._get_val(1, p1) * self._get_val(2, p2))
                 self.i += 4
             elif inst == '03':  # store input
-                self._save(self._get(self.i+1), self.phase_input.pop(0))
+                self._save(self._get_pos(1, p1), self.phase_input.pop(0))
+                #print(self._get(self.rel_base))
                 self.i += 2
             elif inst == '04':  # give output
-                self.return_codes.append(self._o(1, p1))
+                self.return_codes.append(self._get_val(1, p1))
                 print(self.return_codes[-1])
                 self.i += 2
             elif inst == '05':  # jump-if-true
-                self.i = self._o(2, p2) if self._o(1, p1) != 0 else self.i + 3
+                self.i = self._get_val(2, p2) if self._get_val(1, p1) != 0 else self.i + 3
             elif inst == '06':  # jump-if-false
-                self.i = self._o(2, p2) if self._o(1, p1) == 0 else self.i + 3
+                self.i = self._get_val(2, p2) if self._get_val(1, p1) == 0 else self.i + 3
             elif inst == '07':  # less than
-                self._save(self._get(self.i+3), 1 if self._o(1, p1) < self._o(2, p2) else 0)
+                self._save(self._get_pos(3, p3), 1 if self._get_val(1, p1) < self._get_val(2, p2) else 0)
                 self.i += 4
             elif inst == '08':  # equality
-                self._save(self._get(self.i+3), 1 if self._o(1, p1) == self._o(2, p2) else 0)
+                self._save(self._get_pos(3, p3), 1 if self._get_val(1, p1) == self._get_val(2, p2) else 0)
                 self.i += 4
             elif inst == '09': # adjust relative parameter
-                self.rel_base += self._o(1, p1)
+                self.rel_base += self._get_val(1, p1)
                 self.i += 2
 
             else:
                 raise Exception("Got invalid instruction")
 
 
-#data = get_data(day=9)
-#dn = [int(n) for n in data.split(',')]
+data = get_data(day=9)
+dn = [int(n) for n in data.split(',')]
 
-dn = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]  # outputs self
-b = Boost(dn)
-b.run_machine(inp=None)
+b1 = Boost(dn)
+p1 = b1.run_machine(inp=1)
+
+b2 = Boost(dn)
+p2 = p1 = b2.run_machine(inp=2)
