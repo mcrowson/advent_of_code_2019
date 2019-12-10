@@ -31,14 +31,7 @@ class Boost(object):
         return pos
 
     def _get_val(self, off, p):
-        if p == '0':  # Positional
-            pos = self._get(self.i+off)
-        elif p == '1':  # Imediate
-            pos = self.i+off
-        else: # p==2 Relative
-            pos = self.rel_base+ self._get(self.i + off)
-        
-        return self._get(pos) 
+        return self._get(self._get_pos(off, p)) 
         
     def run_machine(self, inp=None):
         if inp:
