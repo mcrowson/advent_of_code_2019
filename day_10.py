@@ -49,14 +49,12 @@ most_visible = max(ast_slopes, key=lambda v: len(ast_slopes[v]))
 mv = ast_slopes[most_visible]
 print(f"P1: {most_visible} can see {len(mv)}")
 
-def dist(p1, p2=most_visible):
+def dist(p1, p2=most_visible):  # Euclidean distance
     return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2))
 
-# order each of the slopes by ascending distance
+# order each of the slopes by ascending distance so we shoot closest first
 for sl, others in mv.items():
     mv[sl] = sorted(others, key=dist)
-    if (12, 1) in others:
-        this = '1'
 
 # Put slopes into their quardants and order them the direction the gun spins
 q1_slopes = sorted([float(s[1:]) for s in mv.keys() if s[0] == 'R' and s[1] != '-'], reverse=True)
